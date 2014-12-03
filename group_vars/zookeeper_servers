@@ -1,0 +1,20 @@
+
+zk_client_port: 2181
+zk_init_limit: 5
+zk_sync_limit: 2
+zk_tick_time: 2000
+zk_data_dir: /var/lib/zookeeper
+zk_log_dir: /var/log/zookeeper
+
+zookeeper_version: 3.4.6
+zookeeper_dir: /opt/zookeeper
+zookeeper_log_dir: /var/log/zookeeper
+zookeeper_data_dir: /var/lib/zookeeper
+zookeeper_docker_base: asteris/zookeeper
+zookeeper_docker_tag: latest
+
+zookeeper_docker_image: ansible-zookeeper
+zookeeper_docker_tag: latest
+zookeeper_docker_maintainer: "automatically created by ansible"
+
+zookeeper_docker_container_name: zookeeper
