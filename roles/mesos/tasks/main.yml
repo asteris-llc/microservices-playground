@@ -1,0 +1,3 @@
+---
+- include: leader.yml
+  when: mesos_mode == "leader" or mesos_mode == "mixed"

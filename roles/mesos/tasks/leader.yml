@@ -1,0 +1,23 @@
+---
+- name: create Mesos leader volume
+  docker:
+    name=mesos-data-volume
+    image=tianon/true
+    state=present
+    volumes={{ mesos_log_dir }},{{ mesos_work_dir }}
+  tags: mesos,mesos-leader-docker-data-volume
+
+- name: run Mesos leader
+  sudo: yes
+  docker:
+    hostname: {{ inventory_hostname }}
+    # TODO: use localhost if zookeeper IP is equal to ansible_hostname. OR use consul DNS?
+    env: "MESOS_PORT=5050,MESOS_IP={{ ansible_default_ipv4.address }},MESOS_LOG_DIR={{ mesos_log_dir }},MESOS_WORK_DIR={{ mesos_work_dir }},{% if "zookeeper_servers" in groups %}MESOS_ZK=zk://{% for zk in groups.zookeeper_hosts %}{{ hostvars[zk].ansible_default_ipv4.address }}:2181{% if not loop.last %},{% endif %}{% endfor %},{% endif %}SERVICE_5050_NAME=mesos,SERVICE_TAGS=mesos"
+    image: {{ mesos_docker_image }}:{{ mesos_docker_tag }}
+    name: {{ mesos_docker_name }}
+    ports: 5050:5050
+    state: running
+    volumes_from: mesos-data-volume
+  tags: mesos,mesos-run-leader-image
+
+# TODO: install an init file to keep this running
