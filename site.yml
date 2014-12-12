@@ -1,11 +1,11 @@
 ---
 - include: playbooks/provision-hosts.yml
-- include: playbooks/upgrade-packages.yml
 
 - hosts: all
   roles:
     - { role: common, tags: common }
     - { role: docker, tags: docker }
+    - { role: logspout, tags: logspout }
 
 - hosts: dc1:&consul_clients
   roles:
