@@ -51,6 +51,7 @@
     ports=2181:2181,2888:2888,3888:3888
     state=running
     volumes_from=zookeeper-data-volume
+    volumes="{{ zookeeper_log_dir }}:{{ zookeeper_log_dir }},{{ zookeeper_data_dir }}:{{ zookeeper_data_dir }}"
   tags: zookeeper,zookeeper-docker-run-image
 
 - name: stop zookeeper docker container
