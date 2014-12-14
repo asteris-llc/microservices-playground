@@ -1,12 +1,4 @@
 ---
-- name: create Mesos leader volume
-  docker:
-    name=mesos-data-volume
-    image=tianon/true
-    state=present
-    volumes={{ mesos_log_dir }},{{ mesos_work_dir }}
-  tags: mesos,mesos-leader-docker-data-volume
-
 - name: run Mesos leader
   sudo: yes
   docker:
@@ -24,9 +16,8 @@
       MESOS_QUORUM: "{{ groups.mesos_leaders|count // 2 }}"
       SERVICE_5050_NAME: "{{ mesos_leader_docker_name }}"
       SERVICE_TAG: "mesos"
-    ports: 5050:5050
     state: running
-    volumes_from: mesos-data-volume
+    volumes_from: "{{ mesos_data_volume_name }}"
     volumes:
       - "{{ mesos_log_dir }}:{{ mesos_log_dir }}"
       - "{{ mesos_work_dir }}:{{ mesos_work_dir }}"

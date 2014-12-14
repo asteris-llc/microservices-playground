@@ -1,3 +1,16 @@
 ---
+- name: create Mesos data volume
+  docker:
+    name: "{{ mesos_data_volume_name }}"
+    image: tianon/true
+    state: present
+    volumes:
+      - "{{ mesos_log_dir }}"
+      - "{{ mesos_work_dir }}"
+  tags: mesos,mesos-leader-docker-data-volume
+
 - include: leader.yml
   when: mesos_mode == "leader" or mesos_mode == "mixed"
+
+- include: follower.yml
+  when: mesos_mode == "follower" or mesos_mode == "mixed"

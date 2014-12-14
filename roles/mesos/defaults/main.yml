@@ -1,7 +1,9 @@
 ---
 mesos_docker_image: redjack/mesos
 mesos_docker_tag: 0.21.0
-mesos_leader_docker_name: mesos-leader
+mesos_data_volume_name: data-volume-mesos
+mesos_leader_docker_name: leader-mesos
+mesos_follower_docker_name: follower-mesos
 mesos_mode: leader
 mesos_log_dir: /var/log/mesos
 mesos_work_dir: /etc/mesos/work_dir
