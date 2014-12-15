@@ -1,0 +1,21 @@
+[Unit]
+Description=Mesos follower on port 5051, running with Docker
+After=docker
+BindsTo=docker
+
+[Service]
+ExecStartPre=-/usr/bin/docker pull {{ mesos_docker_image }}:{{ mesos_docker_tag }}
+ExecStart=/usr/bin/docker run --rm \
+                              --name={{ mesos_follower_docker_name }} \
+                              --net=host \
+                              --privileged \
+                              -v /sys:/sys \
+                              -v /usr/bin/docker:/usr/local/bin/docker \
+                              -v /var/run/docker.sock:/var/run/docker.sock \
+                              -v /usr/lib64/libdevmapper.so.1.02:/usr/lib/libdevmapper.so.1.02 \
+                              -e MESOS_PORT=5051 \
+                              -e MESOS_MASTER=zk://{% for zk in groups.zookeeper_servers %}{{ hostvars[zk].ansible_default_ipv4.address }}:2181{% if not loop.last %},{% endif %}{% endfor %}/mesos \
+                              -e MESOS_CONTAINERIZERS=docker,mesos \
+                              -e SERVICE_5051_NAME={{ mesos_leader_docker_name }} \
+                              -e SERVICE_TAG=mesos \
+                              {{ mesos_docker_image }}:{{ mesos_docker_tag }} mesos-slave

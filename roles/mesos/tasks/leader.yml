@@ -1,26 +1,17 @@
 ---
-- name: run Mesos leader
+- name: generate Mesos leader systemd unit
   sudo: yes
-  docker:
-    hostname: "{{ inventory_hostname }}"
-    image: "{{ mesos_docker_image }}:{{ mesos_docker_tag }}"
-    name: "{{ mesos_leader_docker_name }}"
-    env:
-      MESOS_PORT: 5050
-      MESOS_HOSTNAME: "{{ ansible_default_ipv4.address }}"
-      MESOS_LOG_DIR: "{{ mesos_log_dir }}"
-      MESOS_WORK_DIR: "{{ mesos_work_dir }}"
-      # TODO: use consul DNS
-      MESOS_ZK: "zk://{% for zk in groups.zookeeper_servers %}{{ hostvars[zk].ansible_default_ipv4.address }}:2181{% if not loop.last %},{% endif %}{% endfor %}/mesos"
-      # TODO: really this should be // 2 + 1 but Mesos won't start up with 3 nodes that way. Weird.
-      MESOS_QUORUM: "{{ groups.mesos_leaders|count // 2 }}"
-      SERVICE_5050_NAME: "{{ mesos_leader_docker_name }}"
-      SERVICE_TAG: "mesos"
-    state: running
-    volumes_from: "{{ mesos_data_volume_name }}"
-    volumes:
-      - "{{ mesos_log_dir }}:{{ mesos_log_dir }}"
-      - "{{ mesos_work_dir }}:{{ mesos_work_dir }}"
-    net: host
-    command: mesos-master
-  tags: mesos,mesos-run-leader-image
+  template:
+    src: mesos-leader.service.j2
+    dest: /etc/systemd/system/mesos-leader.service
+  tags: mesos,mesos-generate-leader-unit
+  notify:
+    - restart Mesos leader
+    - wait for Mesos leader port
+
+- name: enable Mesos leader
+  sudo: yes
+  service:
+    name: mesos-leader
+    enabled: yes
+  tags: mesos,mesos-enable-leader-unit
