@@ -1,0 +1,26 @@
+---
+# leader
+- name: restart Mesos leader
+  sudo: yes
+  service:
+    name: mesos-leader
+    state: restarted
+
+- name: wait for Mesos leader port
+  wait_for:
+    host: "{{ ansible_default_ipv4.address }}"
+    port: 5050
+    timeout: 10
+
+# follower
+- name: restart Mesos follower
+  sudo: yes
+  service:
+    name: mesos-follower
+    state: restarted
+
+- name: wait for Mesos follower port
+  wait_for:
+    host: "{{ ansible_default_ipv4.address }}"
+    port: 5051
+    timeout: 10

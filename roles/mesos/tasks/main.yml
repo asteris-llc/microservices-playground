@@ -1,0 +1,6 @@
+---
+- include: leader.yml
+  when: mesos_mode == "leader" or mesos_mode == "mixed"
+
+- include: follower.yml
+  when: mesos_mode == "follower" or mesos_mode == "mixed"
