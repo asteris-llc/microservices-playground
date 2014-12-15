@@ -1,74 +1,19 @@
-- name: create docker data volume
-  sudo: yes
-  docker: >
-    name=zookeeper-data-volume
-    image=tianon/true
-    state=present
-    volumes={{zookeeper_log_dir}},{{zookeeper_data_dir}}
-  tags: zookeeper,zookeeper-docker-data-volume
-
-- name: create tempdir 
-  sudo: yes
-  file: >
-    path={{ zk_tempdir }}
-    state=directory
-  tags: zookeeper,zookeeper-docker-create-tempdir 
-
-- name: create myid file
+- name: generate zookeeper default env file
   sudo: yes
   template:
-    src=myid.j2 dest="{{zk_tempdir}}/myid"
-  tags: zookeeper,zookeeper-docker-create-myid 
+    src=zookeeper-env.j2 dest="/etc/default/{{zookeeper_service}}"
+  tags: zookeeper,zookeeper-docker-create-default-env
 
-- name: create config file
+- name: generate zookeeper systemd service file 
   sudo: yes
   template:
-    src=zoo.cfg.j2 dest="{{zk_tempdir}}/zoo.cfg"
-  tags: zookeeper,zookeeper-docker-create-zoocfg
+    src=zookeeper-service.j2 dest="/usr/lib/systemd/system/{{zookeeper_service}}.service"
+  tags: zookeeper,zookeeper-docker-create-systemd-sevice
 
-- name: create Dockerfile
+- name: register zookeeper service with systemd
   sudo: yes
-  template:
-    src=Dockerfile.j2 dest=/tmp/docker/zookeeper/Dockerfile
-  tags: zookeeper,zookeeper-docker-create-dockerfile 
-
-- name: build zookeeper docker image
-  sudo: yes
-  docker_image: >
-    name={{ zookeeper_docker_image }} 
-    tag={{ zookeeper_docker_tag }}
-    path=/tmp/docker/zookeeper
-    state=build 
-  tags: zookeeper,zookeeper-docker-build-image
-
-- name: run zookeeper docker image
-  sudo: yes
-  docker: > 
-    hostname={{ inventory_hostname }}
-    env="SERVICE_2181_NAME=zookeeper,SERVICE_2888_NAME=zookeeper-2888,SERVICE_3888_NAME=zookeeper-3888,SERVICE_TAGS=zkid-{{zk_id}}"
-    image={{ zookeeper_docker_image }}:{{ zookeeper_docker_tag }}
-    name={{ zookeeper_docker_container_name }}
-    ports=2181:2181,2888:2888,3888:3888    
-    state=running
-    volumes_from=zookeeper-data-volume
-  tags: zookeeper,zookeeper-docker-run-image
-
-- name: stop zookeeper docker container 
-  sudo: yes
-  docker: > 
-    image={{ zookeeper_docker_image }}:{{ zookeeper_docker_tag }}
-    name={{ zookeeper_docker_container_name }}
-    state=killed 
-  when: zookeeper-docker-stop is defined
-  tags: zookeeper-docker-stop-container
-
-- name: remove zookeeper docker container 
-  sudo: yes
-  docker: > 
-    image={{ zookeeper_docker_image }}:{{ zookeeper_docker_tag }}
-    name={{ zookeeper_docker_container_name }}
-    state=absent
-  when: zookeeper-docker-remove-container is defined
-  tags: zookeeper-docker-remove-container
-
-
+  service: >
+    enabled=yes
+    name="{{zookeeper_service}}" 
+    state=started
+  tags: zookeeper,zookeper-docker-systemd-start
