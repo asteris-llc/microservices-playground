@@ -1,0 +1,19 @@
+- name: generate zookeeper default env file
+  sudo: yes
+  template:
+    src=zookeeper-env.j2 dest="/etc/default/{{zookeeper_service}}"
+  tags: zookeeper,zookeeper-docker-create-default-env
+
+- name: generate zookeeper systemd service file 
+  sudo: yes
+  template:
+    src=zookeeper-service.j2 dest="/usr/lib/systemd/system/{{zookeeper_service}}.service"
+  tags: zookeeper,zookeeper-docker-create-systemd-sevice
+
+- name: register zookeeper service with systemd
+  sudo: yes
+  service: >
+    enabled=yes
+    name="{{zookeeper_service}}" 
+    state=started
+  tags: zookeeper,zookeper-docker-systemd-start

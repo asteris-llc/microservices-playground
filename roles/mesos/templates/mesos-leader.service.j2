@@ -1,0 +1,18 @@
+[Unit]
+Description=Mesos leader on port 5050, running with Docker
+After=docker
+BindsTo=docker
+
+[Service]
+ExecStartPre=-/usr/bin/docker pull {{ mesos_docker_image }}:{{ mesos_docker_tag }}
+ExecStart=/usr/bin/docker run --rm \
+                              --name={{ mesos_leader_docker_name }} \
+                              --net=host \
+                              -e MESOS_PORT=5050 \
+                              -e MESOS_HOSTNAME={{ ansible_default_ipv4.address }} \
+                              -e MESOS_WORK_DIR=/tmp \
+                              -e MESOS_ZK=zk://{% for zk in groups.zookeeper_servers %}{{ hostvars[zk].ansible_default_ipv4.address }}:2181{% if not loop.last %},{% endif %}{% endfor %}/mesos \
+                              -e MESOS_QUORUM={{ groups.mesos_leaders|count // 2 }} \
+                              -e SERVICE_5050_NAME={{ mesos_leader_docker_name }} \
+                              -e SERVICE_TAG=mesos \
+                              {{ mesos_docker_image }}:{{ mesos_docker_tag }} mesos-master

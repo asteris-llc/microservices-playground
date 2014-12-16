@@ -1,0 +1,6 @@
+---
+- name: Install Mesosphere repo (Centos 7)
+  yum:
+    name: http://repos.mesosphere.io/el/7/noarch/RPMS/mesosphere-el-repo-7-1.noarch.rpm
+    state: present
+  when: ansible_distribution == "Centos" and ansible_distribution_major_version == "7"

@@ -1,0 +1,17 @@
+---
+- name: generate Mesos leader systemd unit
+  sudo: yes
+  template:
+    src: mesos-leader.service.j2
+    dest: /etc/systemd/system/mesos-leader.service
+  tags: mesos,mesos-generate-leader-unit
+  notify:
+    - restart Mesos leader
+    - wait for Mesos leader port
+
+- name: enable Mesos leader
+  sudo: yes
+  service:
+    name: mesos-leader
+    enabled: yes
+  tags: mesos,mesos-enable-leader-unit

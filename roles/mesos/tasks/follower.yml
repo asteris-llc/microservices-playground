@@ -1,0 +1,17 @@
+---
+- name: generate Mesos follower systemd unit
+  sudo: yes
+  template:
+    src: mesos-follower.service.j2
+    dest: /etc/systemd/system/mesos-follower.service
+  tags: mesos,mesos-generate-follower-unit
+  notify:
+    - restart Mesos follower
+    - wait for Mesos follower port
+
+- name: enable Mesos follower
+  sudo: yes
+  service:
+    name: mesos-follower
+    enabled: yes
+  tags: mesos,mesos-enable-follower-unit
