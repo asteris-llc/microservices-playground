@@ -1,6 +1,0 @@
-FROM {{zookeeper_docker_base}}:{{zookeeper_docker_tag}}
-
-MAINTAINER {{zookeeper_docker_maintainer}}
-
-ADD myid {{zookeeper_data_dir}}/myid
-ADD zoo.cfg {{zookeeper_dir}}/conf/zoo.cfg 
