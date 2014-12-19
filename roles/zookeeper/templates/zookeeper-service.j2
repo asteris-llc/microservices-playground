@@ -1,0 +1,22 @@
+[Unit]
+Description={{zookeeper_service}}
+After=docker.service
+Requires=docker.service
+
+[Service]
+Restart=on-failure
+TimeoutStartSec=20m
+
+ExecStartPre=-/usr/bin/docker rm {{zookeeper_container_name}}
+ExecStartPre=-/usr/bin/docker pull {{zookeeper_docker_image}}:{{zookeeper_docker_tag}}
+
+ExecStart=/usr/bin/docker run --name={{zookeeper_container_name}} \
+                              {{zookeeper_docker_ports}} \
+                              --env-file={{zookeeper_docker_env}} \
+                              {{zookeeper_docker_image }}:{{zookeeper_docker_tag}}
+
+ExecStop=/bin/bash -c \
+         "/usr/bin/docker kill {{zookeeper_container_name}} && /usr/bin/docker rm {{zookeeper_container_name}}"
+
+[Install]
+WantedBy=multi-user.target
