@@ -1,0 +1,48 @@
+- name: generate zookeeper default env file
+  sudo: yes
+  template:
+    src: zookeeper-env.j2 
+    dest: "/etc/default/{{zookeeper_service}}"
+  register: zookeeper_env_file
+  tags: 
+    - zookeeper
+    - zookeeper-docker-create-default-env
+
+- name: generate zookeeper systemd service file 
+  sudo: yes
+  template:
+    src: zookeeper-service.j2 
+    dest: "/usr/lib/systemd/system/{{zookeeper_service}}.service"
+  register: zookeeper_unit
+  tags: 
+    - zookeeper
+    - zookeeper-docker-create-systemd-sevice
+
+- name: register zookeeper service with systemd
+  sudo: yes
+  service: 
+    enabled: yes
+    name: "{{zookeeper_service}}" 
+    state: started
+  tags: 
+    - zookeeper 
+    - zookeper-docker-systemd-start
+
+- name: reload systemd daemon
+  sudo: yes
+  command: /bin/systemctl daemon-reload
+  when: zookeeper_unit.changed
+  tags: 
+    - zookeeper 
+    - zookeper-docker-systemd-reload-daemon
+
+
+- name: restart zookeeper
+  sudo: yes
+  when: zookeeper_env_file.changed
+  service:
+    name: "{{zookeeper_service}}"
+    state: restarted
+  tags: 
+    - zookeeper 
+    - zookeper-docker-restart-container
