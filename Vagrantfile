@@ -19,7 +19,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.provision "ansible" do |ansible|
     ansible.playbook = "vagrant_playbook.yml"
-    ansible.limit = "all"
     ansible.extra_vars = {}
     ansible.groups = {}
   end
