@@ -1,0 +1,5 @@
+---
+- hosts: all
+  tasks:
+    - name: test
+      debug: message="hey there"
