@@ -2,4 +2,4 @@
 - hosts: all
   tasks:
     - name: test
-      debug: message="hey there"
+      debug: msg="vagrant is working"
