@@ -1,5 +1,12 @@
 ---
 - hosts: all
   tasks:
-    - name: test
-      debug: msg="vagrant is working"
+    # from upgrade-packages.yml
+    # note: kernel is not upgraded as it is in upgrade-packages.yml, since
+    # Vagrant and Virtualbox rely on a kernel module to set up file sharing and
+    # port forwarding.
+    - name: upgrade all packages
+      sudo: yes
+      yum:
+        name: "*"
+        state: latest
