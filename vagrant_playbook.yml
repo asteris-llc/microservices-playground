@@ -10,3 +10,8 @@
       yum:
         name: "*"
         state: latest
+
+  roles:
+    - common
+    - docker
+    - consul

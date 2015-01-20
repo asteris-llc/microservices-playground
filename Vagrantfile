@@ -5,6 +5,10 @@
 VAGRANTFILE_API_VERSION = "2"
 NUM_HOSTS = 3
 
+def hostname(id)
+  "node#{id}"
+end
+
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = "chef/centos-7.0"
   config.ssh.forward_agent = true
@@ -19,15 +23,20 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.provision "ansible" do |ansible|
     ansible.playbook = "vagrant_playbook.yml"
-    ansible.extra_vars = {
-        "consul_gossip_key" => "ggVIrhEzqe7W/65YZ9fYFA=="
+    ansible.groups = {
+      "vagrant" => (1..NUM_HOSTS).collect { |id| hostname(id) }
     }
-    ansible.groups = {}
+    ansible.extra_vars = {
+      "consul_gossip_key" => "ggVIrhEzqe7W/65YZ9fYFA==",
+      "consul_dc" => "vagrant",
+      "consul_bootstrap_expect" => 1,
+      "consul_retry_join" => 1
+    }
   end
 
   NUM_HOSTS.times do |n|
     id = n + 1
-    config.vm.define "node#{id}", primary: id == 1 do |host|
+    config.vm.define hostname(id), primary: id == 1 do |host|
       host.vm.network :private_network, ip: "10.0.33.1#{id}"
     end
   end
