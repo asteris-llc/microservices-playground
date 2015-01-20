@@ -19,7 +19,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.provision "ansible" do |ansible|
     ansible.playbook = "vagrant_playbook.yml"
-    ansible.extra_vars = {}
+    ansible.extra_vars = {
+        "consul_gossip_key" => "ggVIrhEzqe7W/65YZ9fYFA=="
+    }
     ansible.groups = {}
   end
 
